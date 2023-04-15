@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UrlRepository extends JpaRepository<Url, Long> {
-    @Query("select u from Url u where u.code = ?1 and u.createdBy = ?2")
-    Optional<Url> findByCode(String code,Long id);
+    @Query("select u from Url u where u.code = ?1 and u.deleted = false")
+    Optional<Url> findByCode(String code);
     @Query("select u from Url u where u.createdBy = ?1")
     List<Url> findByCreatedBy(Long createdBy);
 }

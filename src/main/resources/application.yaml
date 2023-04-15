@@ -11,6 +11,19 @@ spring:
     password: 123
     username: postgres
     url: jdbc:postgresql://localhost:5432/sbm2fp
+  mail:
+    host: 'sandbox.smtp.mailtrap.io'
+    port: 587
+    username: 76c730003d7099
+    password: 1c86aaf56c4d88
+    properties:
+      smtp:
+        auth: true
+        starttls:
+          enable: true
+  freemarker:
+    template-loader-path: 'classpath:/templates'
 application:
+  mail: john.lgd65@gmail.com
   log:
     path: /home/jlkesh/shorts/application_logs

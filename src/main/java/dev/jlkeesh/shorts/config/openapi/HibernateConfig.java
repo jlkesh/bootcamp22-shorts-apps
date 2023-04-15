@@ -52,12 +52,8 @@ public class HibernateConfig {
                 .servers(List.of(
                         new Server().url("http://localhost:8080").description("Production Server"),
                         new Server().url("http://localhost:9090").description("Test Server")
-                )).addSecurityItem(new SecurityRequirement().addList("basicAuth", "bearerAuth"))
+                )).addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components((new Components()
-                        .addSecuritySchemes("basicAuth", new SecurityScheme()
-                                .name("basicAuth")
-                                .type(SecurityScheme.Type.HTTP)
-                                .scheme("basic"))
                         .addSecuritySchemes("bearerAuth", new SecurityScheme()
                                 .name("bearerAuth")
                                 .type(SecurityScheme.Type.HTTP)
@@ -73,6 +69,7 @@ public class HibernateConfig {
                 .pathsToMatch("/api/auth/**")
                 .build();
     }
+
     @Bean
     public GroupedOpenApi allOpenApi() {
         return GroupedOpenApi.builder()

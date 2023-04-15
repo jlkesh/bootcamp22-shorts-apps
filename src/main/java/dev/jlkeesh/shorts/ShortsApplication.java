@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,6 +18,8 @@ import java.util.Optional;
 
 @SpringBootApplication
 @EnableJpaAuditing
+@EnableAsync
+@EnableScheduling
 public class ShortsApplication {
     private final Environment env;
 
@@ -29,7 +33,7 @@ public class ShortsApplication {
 
     @Bean
     public AuditorAware<Long> auditorAware(SessionUser sessionUser) {
-        return () -> Optional.of(sessionUser.getId());
+        return () -> Optional.of(sessionUser.id());
     }
 
 
