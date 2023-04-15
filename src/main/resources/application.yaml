@@ -1,0 +1,16 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    driverClassName: org.postgresql.Driver
+    password: 123
+    username: postgres
+    url: jdbc:postgresql://localhost:5432/sbm2fp
+application:
+  log:
+    path: /home/jlkesh/shorts/application_logs
