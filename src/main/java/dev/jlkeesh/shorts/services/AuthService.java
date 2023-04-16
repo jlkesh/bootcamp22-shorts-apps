@@ -1,9 +1,6 @@
 package dev.jlkeesh.shorts.services;
 
-import dev.jlkeesh.shorts.dto.auth.AuthUserCreateDTO;
-import dev.jlkeesh.shorts.dto.auth.RefreshTokenRequest;
-import dev.jlkeesh.shorts.dto.auth.TokenRequest;
-import dev.jlkeesh.shorts.dto.auth.TokenResponse;
+import dev.jlkeesh.shorts.dto.auth.*;
 import dev.jlkeesh.shorts.entities.AuthUser;
 import org.springframework.lang.NonNull;
 
@@ -16,4 +13,6 @@ public interface AuthService {
     boolean activateUserByOTP(String code);
 
     TokenResponse refreshToken(@NonNull RefreshTokenRequest refreshTokenRequest);
+
+    String sendActionCode(@NonNull ActivationCodeResendDTO dto);
 }

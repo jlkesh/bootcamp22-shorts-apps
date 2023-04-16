@@ -21,14 +21,14 @@ import static dev.jlkeesh.shorts.enums.TokenType.REFRESH;
 public class JwtTokenUtil {
 
 
-    @Value("#{T(java.lang.System).currentTimeMillis()  + ${jwt.access.token.expiry}}")
+    @Value("${jwt.access.token.expiry}")
     private long accessTokenExpiry;
 
     @Value("${jwt.access.token.secret.key}")
     public String ACCESS_TOKEN_SECRET_KEY;
 
 
-    @Value("#{T(java.lang.System).currentTimeMillis()  + ${jwt.refresh.token.expiry}}")
+    @Value("${jwt.refresh.token.expiry}")
     private long refreshTokenExpiry;
 
     @Value("${jwt.refresh.token.secret.key}")
@@ -36,7 +36,27 @@ public class JwtTokenUtil {
 
 
     public TokenResponse generateToken(@NonNull String username) {
-        TokenResponse tokenResponse = new TokenResponse(accessTokenExpiry, refreshTokenExpiry);
+        TokenResponse tokenResponse = new TokenResponse();
+        generateAccessToken(username, tokenResponse);
+        generateRefreshToken(username, tokenResponse);
+        return tokenResponse;
+    }
+
+    public TokenResponse generateRefreshToken(@NonNull String username, @NonNull TokenResponse tokenResponse) {
+        tokenResponse.setRefreshTokenExpiry(new Date(System.currentTimeMillis() + refreshTokenExpiry));
+        String refreshToken = Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setIssuer("https://online.pdp.uz")
+                .setExpiration(tokenResponse.getRefreshTokenExpiry())
+                .signWith(signKey(REFRESH), SignatureAlgorithm.HS256)
+                .compact();
+        tokenResponse.setRefreshToken(refreshToken);
+        return tokenResponse;
+    }
+
+    public TokenResponse generateAccessToken(@NonNull String username, @NonNull TokenResponse tokenResponse) {
+        tokenResponse.setAccessTokenExpiry(new Date(System.currentTimeMillis() + accessTokenExpiry));
         String accessToken = Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
@@ -44,16 +64,7 @@ public class JwtTokenUtil {
                 .setExpiration(tokenResponse.getAccessTokenExpiry())
                 .signWith(signKey(ACCESS), SignatureAlgorithm.HS512)
                 .compact();
-
-        String refreshToken = Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setIssuer("https://online.pdp.uz")
-                .setExpiration(tokenResponse.getAccessTokenExpiry())
-                .signWith(signKey(REFRESH), SignatureAlgorithm.HS256)
-                .compact();
         tokenResponse.setAccessToken(accessToken);
-        tokenResponse.setRefreshToken(refreshToken);
         return tokenResponse;
     }
 
@@ -84,5 +95,10 @@ public class JwtTokenUtil {
     private Key signKey(TokenType tokenType) {
         byte[] bytes = Decoders.BASE64.decode(tokenType.equals(ACCESS) ? ACCESS_TOKEN_SECRET_KEY : REFRESH_TOKEN_SECRET_KEY);
         return Keys.hmacShaKeyFor(bytes);
+    }
+
+    public Date getExpiry(String token, TokenType tokenType) {
+        Claims claims = getClaims(token, tokenType);
+        return claims.getExpiration();
     }
 }

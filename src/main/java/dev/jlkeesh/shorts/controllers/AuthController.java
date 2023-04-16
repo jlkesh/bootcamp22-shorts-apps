@@ -1,9 +1,6 @@
 package dev.jlkeesh.shorts.controllers;
 
-import dev.jlkeesh.shorts.dto.auth.AuthUserCreateDTO;
-import dev.jlkeesh.shorts.dto.auth.RefreshTokenRequest;
-import dev.jlkeesh.shorts.dto.auth.TokenRequest;
-import dev.jlkeesh.shorts.dto.auth.TokenResponse;
+import dev.jlkeesh.shorts.dto.auth.*;
 import dev.jlkeesh.shorts.entities.AuthUser;
 import dev.jlkeesh.shorts.services.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,6 +30,11 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthUser> register(@NonNull @Valid @RequestBody AuthUserCreateDTO dto) {
         return ResponseEntity.ok(authService.create(dto));
+    }
+
+    @PostMapping("/send/activation/code")
+    public ResponseEntity<String> sendActivationCode(@NonNull @Valid @RequestBody ActivationCodeResendDTO dto) {
+        return ResponseEntity.ok(authService.sendActionCode(dto));
     }
 
     @GetMapping("/activate/{code}")
