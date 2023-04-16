@@ -2,7 +2,7 @@ package dev.jlkeesh.shorts.config;
 
 import dev.jlkeesh.shorts.dto.response.AppErrorDTO;
 import dev.jlkeesh.shorts.exceptions.UrlExpiredException;
-import dev.jlkeesh.shorts.exceptions.UrlNotFoundException;
+import dev.jlkeesh.shorts.exceptions.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -35,8 +35,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(400).body(errorDTO);
     }
 
-    @ExceptionHandler(UrlNotFoundException.class)
-    public ResponseEntity<AppErrorDTO> handleUrlNotFoundException(UrlNotFoundException e, HttpServletRequest request) {
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<AppErrorDTO> handleUrlNotFoundException(NotFoundException e, HttpServletRequest request) {
         String errorMessage = e.getMessage();
         String errorPath = request.getRequestURI();
         AppErrorDTO errorDTO = new AppErrorDTO(errorPath, errorMessage, 404);

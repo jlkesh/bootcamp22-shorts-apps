@@ -1,6 +1,7 @@
 package dev.jlkeesh.shorts;
 
 import dev.jlkeesh.shorts.config.security.SessionUser;
+import dev.jlkeesh.shorts.utils.Report;
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,9 +24,11 @@ import java.util.Optional;
 @EnableScheduling
 public class ShortsApplication {
     private final Environment env;
+    private final Report report;
 
-    public ShortsApplication(Environment env) {
+    public ShortsApplication(Environment env, Report report) {
         this.env = env;
+        this.report = report;
     }
 
     public static void main(String[] args) {
@@ -36,6 +40,10 @@ public class ShortsApplication {
         return () -> Optional.of(sessionUser.id());
     }
 
+    @Scheduled(cron = "0 0 0 * * mon")
+    public void reporting(){
+        report.report();
+    }
 
     @PostConstruct
     public void postConstruct() throws IOException {

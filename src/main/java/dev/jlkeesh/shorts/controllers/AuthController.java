@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,7 +33,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.create(dto));
     }
 
-    @PostMapping("/send/activation/code")
+    @PostMapping("/send/activation/link")
     public ResponseEntity<String> sendActivationCode(@NonNull @Valid @RequestBody ActivationCodeResendDTO dto) {
         return ResponseEntity.ok(authService.sendActionCode(dto));
     }

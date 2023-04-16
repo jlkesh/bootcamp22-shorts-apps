@@ -11,6 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 public interface AuthUserOtpRepository extends JpaRepository<AuthUserOtp, Long> {
-    @Query("select a from AuthUserOtp a where a.code = ?1 and a.deleted = false")
+    @Query("select a from AuthUserOtp a where a.code = ?1 and  a.deleted = false")
     Optional<AuthUserOtp> findByCode(String code);
+
+
+    @Transactional
+    @Modifying
+    @Query("update AuthUserOtp a set a.deleted = true where a.createdBy = :userID and a.otpType = :otpType")
+    void deleteOTPsByUserID(@Param("userID") Long userID, AuthUserOtp.OtpType otpType);
 }

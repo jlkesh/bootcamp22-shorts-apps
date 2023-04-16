@@ -4,7 +4,7 @@ import dev.jlkeesh.shorts.config.security.SessionUser;
 import dev.jlkeesh.shorts.dto.UrlCreateDto;
 import dev.jlkeesh.shorts.entities.Url;
 import dev.jlkeesh.shorts.exceptions.UrlExpiredException;
-import dev.jlkeesh.shorts.exceptions.UrlNotFoundException;
+import dev.jlkeesh.shorts.exceptions.NotFoundException;
 import dev.jlkeesh.shorts.mappers.UrlMapper;
 import dev.jlkeesh.shorts.repositories.UrlRepository;
 import dev.jlkeesh.shorts.utils.BaseUtils;
@@ -13,8 +13,11 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.*;
+import java.time.temporal.TemporalField;
+import java.time.temporal.WeekFields;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @Slf4j
@@ -41,9 +44,16 @@ public record UrlServiceImpl(
     @Override
     public Url getByCode(@NotNull String code) {
         Url url = urlRepository.findByCode(code)
-                .orElseThrow(() -> new UrlNotFoundException("Url Not Found"));
+                .orElseThrow(() -> new NotFoundException("Url Not Found"));
         if (url.getExpiresAt().isBefore(LocalDateTime.now()))
             throw new UrlExpiredException("Url expired");
         return url;
+    }
+
+    @Override
+    public List<Url> lastWeek() {
+        LocalDateTime monday = LocalDateTime.now().minusWeeks(1).with(DayOfWeek.MONDAY).with(LocalTime.MIN);
+        LocalDateTime sunday = LocalDateTime.now().minusWeeks(1).with(DayOfWeek.SUNDAY).with(LocalTime.MAX);
+        return urlRepository.weeklyReport(monday,sunday);
     }
 }

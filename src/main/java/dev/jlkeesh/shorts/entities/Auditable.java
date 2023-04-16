@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
+@ToString
 public abstract class Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

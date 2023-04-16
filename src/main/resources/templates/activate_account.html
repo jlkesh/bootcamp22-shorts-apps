@@ -114,7 +114,7 @@
 <div class="activation__wrapper">
     <div class="activation__container">
         <div>
-            <img src="cid:url_id" style="width: 100px;"/>
+            <img src="/static/img/url.png" style="width: 100px;"/>
         </div>
         <div class="activation__subject"><b>URL SHORTENER</b> Activation Link</div>
         <div class="activation__arrow"></div>
@@ -129,11 +129,11 @@
                 Click on the following link to activate your account:
             </div>
             <input type="hidden" id="url" value="${url}">
-            <a href="${url}" class="activation__btn">
+            <div href="${url}" class="activation__btn">
                 Activate your account here
-            </a>
+            </div>
 
-            <button type="button" onclick="copyLink()">Copy Link</button>
+            <button onclick="copyLink()">Copy Link</button>
         </div>
         <div class="activation__footer">
             Thank you. Sincerely,
@@ -147,7 +147,6 @@
 <script>
     function copyLink() {
         const url = document.getElementById("url");
-        console.log(url)
         navigator.clipboard.writeText(url.value)
     }
 </script>

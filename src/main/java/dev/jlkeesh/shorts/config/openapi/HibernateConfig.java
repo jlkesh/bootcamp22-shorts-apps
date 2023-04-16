@@ -50,6 +50,7 @@ public class HibernateConfig {
                         .description("SpringShop Wiki Documentation")
                         .url("https://springshop.wiki.github.org/docs"))
                 .servers(List.of(
+                        new Server().url("http://10.10.3.147:8080").description("Daxshatli Server"),
                         new Server().url("http://localhost:8080").description("Production Server"),
                         new Server().url("http://localhost:9090").description("Test Server")
                 )).addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
@@ -74,7 +75,7 @@ public class HibernateConfig {
     public GroupedOpenApi allOpenApi() {
         return GroupedOpenApi.builder()
                 .group("all")
-                .pathsToMatch("/api/**")
+                .pathsToMatch("/**")
                 .build();
     }
 }

@@ -15,4 +15,5 @@ public interface AuthService {
     TokenResponse refreshToken(@NonNull RefreshTokenRequest refreshTokenRequest);
 
     String sendActionCode(@NonNull ActivationCodeResendDTO dto);
+
 }

@@ -5,6 +5,7 @@ import dev.jlkeesh.shorts.config.security.SessionUser;
 import dev.jlkeesh.shorts.dto.auth.*;
 import dev.jlkeesh.shorts.entities.AuthUser;
 import dev.jlkeesh.shorts.entities.AuthUserOtp;
+import dev.jlkeesh.shorts.exceptions.NotFoundException;
 import dev.jlkeesh.shorts.mappers.AuthUserMapper;
 import dev.jlkeesh.shorts.repositories.AuthUserOtpRepository;
 import dev.jlkeesh.shorts.repositories.AuthUserRepository;
@@ -15,8 +16,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,6 +36,7 @@ public class AuthServiceImpl implements AuthService {
     private final MailSenderService mailService;
     private final SessionUser sessionUser;
     private final JwtTokenUtil jwtTokenUtil;
+    private static final String basePATH = "http://localhost:8080/api/auth/activate/";
 
     public AuthServiceImpl(
             AuthenticationManager authenticationManager,
@@ -75,17 +75,19 @@ public class AuthServiceImpl implements AuthService {
         authUser.setPassword(passwordEncoder.encode(dto.password()));
         authUser.setRole("USER");
         AuthUserOtp authUserOtp = AuthUserOtp.childBuilder()
-                .createdBy(authUser.getId())
+                .userID(authUser.getId())
                 .code(utils.activationCode(authUser.getId()))
                 .expiresAt(LocalDateTime.now().plusMinutes(10))
+                .otpType(AuthUserOtp.OtpType.ACCOUNT_ACTIVATE)
                 .build();
-
-        String url = "http://localhost:8080/api/auth/activate/" + authUserOtp.getCode();
 
         Map<String, String> model = Map.of(
                 "username", authUser.getUsername(),
                 "to", authUser.getEmail(),
-                "url", url);
+                "subject", "Activate Your Account",
+                "url", basePATH + authUserOtp.getCode(),
+                "id", "url_id",
+                "path", "classpath:/static/img/url.png");
         authUserOtpRepository.save(authUserOtp);
         mailService.sendActivationMail(model);
         return authUserRepository.save(authUser);
@@ -102,7 +104,8 @@ public class AuthServiceImpl implements AuthService {
             authUserOtpRepository.save(authUserOtp);
             throw new RuntimeException("OTP code is invalid");
         }
-        authUserRepository.activeUser(authUserOtp.getCreatedBy());
+        Long userID = authUserOtp.getUserID();
+        authUserRepository.activeUser(userID);
         return true;
     }
 
@@ -123,9 +126,27 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String sendActionCode(ActivationCodeResendDTO dto) {
+    public String sendActionCode(@NotNull ActivationCodeResendDTO dto) {
+        AuthUser authUser = authUserRepository.findByEmail(dto.email())
+                .orElseThrow(() -> new NotFoundException("User not found with Email"));
+        authUserOtpRepository.deleteOTPsByUserID(authUser.getId(), AuthUserOtp.OtpType.ACCOUNT_ACTIVATE);
 
-        return null;
+        AuthUserOtp authUserOtp = AuthUserOtp.childBuilder()
+                .userID(authUser.getId())
+                .code(utils.activationCode(authUser.getId()))
+                .expiresAt(LocalDateTime.now().plusMinutes(10))
+                .otpType(AuthUserOtp.OtpType.ACCOUNT_ACTIVATE)
+                .build();
+        Map<String, String> model = Map.of(
+                "username", authUser.getUsername(),
+                "to", authUser.getEmail(),
+                "subject", "Activate Your Account",
+                "url", basePATH + authUserOtp.getCode(),
+                "id", "url_id",
+                "path", "/static/img/url.png");
+        authUserOtpRepository.save(authUserOtp);
+        mailService.sendActivationMail(model);
+        return "Activation Link Sent";
     }
 
 }
