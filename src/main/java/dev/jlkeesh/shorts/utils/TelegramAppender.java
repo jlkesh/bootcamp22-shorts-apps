@@ -6,6 +6,7 @@ import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.springframework.stereotype.Component;
 

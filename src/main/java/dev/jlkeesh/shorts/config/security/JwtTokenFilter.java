@@ -15,6 +15,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static dev.jlkeesh.shorts.enums.TokenType.ACCESS;
+
 public class JwtTokenFilter extends OncePerRequestFilter {
     private final JwtTokenUtil jwtTokenUtil;
     private final UserDetailsService userDetailsService;
@@ -35,12 +37,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
 
         String token = authorization.substring(7);
-        if (!jwtTokenUtil.isValid(token)) {
+        if (!jwtTokenUtil.isValid(token, ACCESS)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String username = jwtTokenUtil.getUsername(token);
+        String username = jwtTokenUtil.getUsername(token, ACCESS);
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

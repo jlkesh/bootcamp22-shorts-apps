@@ -3,17 +3,23 @@ package dev.jlkeesh.shorts.services;
 import dev.jlkeesh.shorts.config.security.JwtTokenUtil;
 import dev.jlkeesh.shorts.config.security.SessionUser;
 import dev.jlkeesh.shorts.dto.auth.AuthUserCreateDTO;
+import dev.jlkeesh.shorts.dto.auth.RefreshTokenRequest;
 import dev.jlkeesh.shorts.dto.auth.TokenRequest;
+import dev.jlkeesh.shorts.dto.auth.TokenResponse;
 import dev.jlkeesh.shorts.entities.AuthUser;
 import dev.jlkeesh.shorts.entities.AuthUserOtp;
+import dev.jlkeesh.shorts.enums.TokenType;
 import dev.jlkeesh.shorts.mappers.AuthUserMapper;
 import dev.jlkeesh.shorts.repositories.AuthUserOtpRepository;
 import dev.jlkeesh.shorts.repositories.AuthUserRepository;
 import dev.jlkeesh.shorts.utils.BaseUtils;
 import dev.jlkeesh.shorts.utils.MailSenderService;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
+
+import static dev.jlkeesh.shorts.enums.TokenType.REFRESH;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -57,7 +65,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String generateToken(@NonNull TokenRequest tokenRequest) {
+    public TokenResponse generateToken(@NonNull TokenRequest tokenRequest) {
         String username = tokenRequest.username();
         String password = tokenRequest.password();
         UsernamePasswordAuthenticationToken authentication =
@@ -101,6 +109,15 @@ public class AuthServiceImpl implements AuthService {
         }
         authUserRepository.activeUser(authUserOtp.getCreatedBy());
         return true;
+    }
+
+    @Override
+    public TokenResponse refreshToken(@NotNull RefreshTokenRequest refreshTokenRequest) {
+        String refreshToken = refreshTokenRequest.refreshToken();
+        if (!jwtTokenUtil.isValid(refreshToken, REFRESH))
+            throw new CredentialsExpiredException("Token is invalid");
+        jwtTokenUtil.generateToken()
+        return null;
     }
 
 }
